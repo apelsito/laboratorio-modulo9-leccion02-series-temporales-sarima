@@ -88,9 +88,14 @@ class TimeSeriesAnalysis:
             print("La serie temporal NO es continua.")
             print("Meses-Años faltantes:", meses_faltantes)
     
-    def graficar_serie(self):
+    def graficar_serie(self, grafica_size=(600, 400)):
         """
         Grafica la serie temporal original.
+        
+        Parameters:
+        -----------
+        grafica_size : tuple
+            Tamaño de la gráfica en píxeles (ancho, alto).
         """
         fig = px.line(
             self.data,
@@ -99,10 +104,17 @@ class TimeSeriesAnalysis:
             title="Serie Temporal Original",
             labels={self.temporal_column: "Fecha", self.value_column: "Valores"}
         )
-        fig.update_layout(template="plotly_white", xaxis_title="Fecha", yaxis_title="Valores")
+        fig.update_layout(
+            template="plotly_white",
+            xaxis_title="Fecha",
+            yaxis_title="Valores",
+            width=grafica_size[0],
+            height=grafica_size[1]
+        )
         fig.show()
+
     
-    def graficar_media_movil(self, window=30):
+    def graficar_media_movil(self, window=30, grafica_size=(600, 400)):
         """
         Grafica la media móvil de la serie temporal.
         
@@ -110,8 +122,13 @@ class TimeSeriesAnalysis:
         -----------
         window : int
             Tamaño de la ventana para calcular la media móvil.
+        grafica_size : tuple
+            Tamaño de la gráfica en píxeles (ancho, alto).
         """
+        # Calcular la media móvil
         self.data["rolling_window"] = self.data[self.value_column].rolling(window=window).mean()
+        
+        # Crear la gráfica con Plotly
         fig = px.line(
             self.data,
             x=self.data.index,
@@ -119,10 +136,23 @@ class TimeSeriesAnalysis:
             title="Evolución con Media Móvil",
             labels={self.temporal_column: "Fecha", self.value_column: "Valores"}
         )
+        
+        # Configuración de las series
         fig.data[0].update(name="Valores Originales")
         fig.data[1].update(name=f"Media Móvil ({window} días)", line=dict(color="red"))
-        fig.update_layout(template="plotly_white", xaxis_title="Fecha", yaxis_title="Valores")
+        
+        # Ajuste del layout y tamaño
+        fig.update_layout(
+            template="plotly_white",
+            xaxis_title="Fecha",
+            yaxis_title="Valores",
+            width=grafica_size[0],
+            height=grafica_size[1]
+        )
+        
+        # Mostrar la gráfica
         fig.show()
+
     
     def detectar_estacionalidad(self, figsize = (12, 10)):
         """
